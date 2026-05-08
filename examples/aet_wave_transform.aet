@@ -1,0 +1,17 @@
+// AET Wave Transform Example
+// Demonstrates: VectorState, WaveState, @ Linear Transform, Attention
+
+let input_dim = 512
+let wave_size = 1024
+
+// Create input vector state
+State(input_dim) → vec
+
+// Apply linear transform
+vec @ W_transform >> LayerNorm >> ReLU
+
+// Compute attention over wave state
+Attention(query=vec, memory=WaveState(wave_size))
+
+// Collapse via entropy gate
+⊕EntropyGate(threshold=0.5)
