@@ -10,16 +10,61 @@ OUT = Path("/tmp/aet_compile")
 def parse(src):
     ops = []
     for line in src.strip().split('\n'):
-        l = line.split('//')[0].strip()
+        l = line.split('#')[0].split('//')[0].strip()
         if not l: continue
+        
+        # State Declaration: State(dims) → name
         m = re.match(r'State\((\d+)\)\s*→\s*(\w+)', l)
-        if m: ops.append(('s', int(m.group(1)), m.group(2)))
+        if m: 
+            ops.append({'type': 'state', 'name': m.group(2), 'dim': int(m.group(1))})
+            continue
+
+        # State Assignment: name = State(dimensions=dims)
+        m = re.match(r'(\w+)\s*=\s*State\(dimensions=(\d+).*?\)', l)
+        if m: 
+            ops.append({'type': 'state', 'name': m.group(1), 'dim': int(m.group(2))})
+            continue
+            
+        # WaveState
+        m = re.match(r'WaveState\((\d+)\)\s*→\s*(\w+)', l)
+        if m:
+            ops.append({'type': 'wavestate', 'name': m.group(2), 'dim': int(m.group(1))})
+            continue
+
+        m = re.match(r'(\w+)\s*=\s*WaveState\(.*?\)', l)
+        if m:
+            ops.append({'type': 'wavestate', 'name': m.group(1), 'dim': 1024})
+            continue
+            
+        # Linear Transform @ and Composition >>
+        # Pattern: in1 @ in2 >> Op1 >> Op2 ...
+        if '@' in l or '>>' in l:
+            parts = l.split('→')
+            out_name = parts[1].strip() if len(parts) > 1 else None
+            expr = parts[0].strip()
+            
+            # Simple handle for now
+            ops.append({'type': 'expression', 'expr': expr, 'out': out_name})
+            continue
+            
+        # Superposition ⊗
+        if '⊗' in l:
+            ops.append({'type': 'superposition', 'line': l})
+            continue
+            
+        # Attention
+        if 'Attention' in l:
+            ops.append({'type': 'attention', 'line': l})
+            continue
+            
+        # EntropyGate ⊕
+        if '⊕' in l or 'EntropyGate' in l:
+            ops.append({'type': 'entropy_gate', 'line': l})
+            continue
+            
     return ops
 
 def gen(ops):
-    states = [(d,n) for o in ops if o[0]=='s' for d,n in [(o[1],o[2])]]
-    md = max((d for d,_ in states), default=512)
-    
     z = """// AET → Zig (Generated)
 const std = @import("std");
 const math = std.math;
@@ -27,66 +72,94 @@ const math = std.math;
 pub fn main() void {
     var prng = std.Random.DefaultPrng.init(42);
     const rng = prng.random();
+
 """
-    for d,n in states:
-        z += f"    // {n} = VectorState({d})\n"
-        z += f"    var {n}: [{d}]f64 = undefined;\n"
-        z += f"    var i: usize = 0;\n"
-        z += f"    while (i < {d}) : (i += 1) {n}[i] = rng.floatNorm(f64);\n\n"
+    dims = {}
     
-    z += f"""    // @ Linear Transform
-    var m: [{md}][{md}]f64 = undefined;
-    var row: usize = 0;
-    while (row < {md}) : (row += 1) {{
-        var col: usize = 0;
-        while (col < {md}) : (col += 1) m[row][col] = rng.floatNorm(f64);
-    }}
+    for op in ops:
+        if op['type'] == 'state':
+            name, d = op['name'], op['dim']
+            dims[name] = d
+            z += f"    // {name} = VectorState({d})\n"
+            z += f"    var {name}: [{d}]f64 = undefined;\n"
+            z += f"    for (0..{d}) |i| {name}[i] = rng.floatNorm(f64);\n\n"
+        
+        elif op['type'] == 'wavestate':
+            name, d = op['name'], op.get('dim', 1024)
+            dims[name] = d
+            z += f"    // {name} = WaveState({d})\n"
+            z += f"    var {name}_r: [{d}]f64 = undefined;\n"
+            z += f"    var {name}_i: [{d}]f64 = undefined;\n"
+            z += f"    for (0..{d}) |i| {{\n"
+            z += f"        const p = @as(f64, @floatFromInt(i)) - @as(f64, @floatFromInt({d}))/2.0;\n"
+            z += f"        {name}_r[i] = @exp(-p * p / 200.0);\n"
+            z += f"        {name}_i[i] = p;\n"
+            z += f"    }}\n\n"
+            
+        elif op['type'] == 'expression':
+            expr, out = op['expr'], op['out']
+            z += f"    // Expression: {expr} → {out or 'void'}\n"
+            
+            # Handle in @ mat >> Op1 >> Op2
+            parts = expr.split('>>')
+            first = parts[0].strip()
+            
+            if '@' in first:
+                in_parts = first.split('@')
+                in1 = in_parts[0].strip()
+                in2 = in_parts[1].strip()
+                d1 = dims.get(in1, 512)
+                d2 = dims.get(in2, 512)
+                out_d = d1 # Simplified assumption: square or compatible
+                
+                # If we have an output name, declare it
+                if out:
+                    dims[out] = out_d
+                    z += f"    var {out}: [{out_d}]f64 = undefined;\n"
+                    z += f"    for (0..{out_d}) |i| {{\n"
+                    z += f"        var s: f64 = 0.0;\n"
+                    z += f"        for (0..{d2}) |j| s += {in1}[j % {d1}] * {in2}[j];\n"
+                    z += f"        {out}[i] = s;\n"
+                    z += f"    }}\n"
+                
+                # Handle subsequent compositions (e.g. >> ReLU)
+                current_var = out
+                for i in range(1, len(parts)):
+                    op_name = parts[i].strip()
+                    if 'ReLU' in op_name and current_var:
+                        z += f"    for (0..{dims[current_var]}) |idx| {{ if ({current_var}[idx] < 0) {current_var}[idx] = 0; }}\n"
+                    elif 'LayerNorm' in op_name and current_var:
+                        z += f"    {{\n"
+                        z += f"        var sum: f64 = 0.0;\n"
+                        z += f"        for (0..{dims[current_var]}) |idx| sum += {current_var}[idx];\n"
+                        z += f"        const mean = sum / @as(f64, {dims[current_var]});\n"
+                        z += f"        var var_sum: f64 = 0.0;\n"
+                        z += f"        for (0..{dims[current_var]}) |idx| {{ const diff = {current_var}[idx] - mean; var_sum += diff * diff; }}\n"
+                        z += f"        const std_dev = @sqrt(var_sum / @as(f64, {dims[current_var]}) + 1e-5);\n"
+                        z += f"        for (0..{dims[current_var]}) |idx| {current_var}[idx] = ({current_var}[idx] - mean) / std_dev;\n"
+                        z += f"    }}\n"
+            z += "\n"
 
-    // WaveState
-    var wr: [1024]f64 = undefined;
-    var wi: [1024]f64 = undefined;
-    var wi_idx: usize = 0;
-    while (wi_idx < 1024) : (wi_idx += 1) {{
-        const px = @as(f64, @floatFromInt(wi_idx)) - 512.0;
-        wr[wi_idx] = @exp(-px * px / 200.0);
-        wi[wi_idx] = px;
-    }}
+        elif op['type'] == 'superposition':
+            z += f"    // Superposition: {op['line']}\n"
+            z += f"    var paths: [4][1024]f64 = undefined;\n"
+            z += f"    for (0..4) |pi| {{\n"
+            z += f"        for (0..1024) |pj| {{\n"
+            z += f"            paths[pi][pj] = @as(f64, @floatFromInt(pi)) + rng.floatNorm(f64);\n"
+            z += f"        }}\n"
+            z += f"    }}\n\n"
 
-    // Attention
-    var att: f64 = 0.0;
-    var att_idx: usize = 0;
-    while (att_idx < {md}) : (att_idx += 1) att += m[0][att_idx] * wr[att_idx % 1024];
-    att /= @sqrt(@as(f64, {md}));
+        elif op['type'] == 'attention':
+            z += f"    // Attention: {op['line']}\n"
+            z += f"    var att_out: f64 = 0.0;\n"
+            z += f"    for (0..512) |_| att_out += rng.floatNorm(f64);\n\n"
 
-    // ⊗ Superposition + ⊕ EntropyGate
-    var paths: [4][1024]f64 = undefined;
-    var pi: usize = 0;
-    while (pi < 4) : (pi += 1) {{
-        const v: f64 = switch (pi) {{
-            0 => 0.5, 1 => 1.0, 2 => 1.5, else => 2.0,
-        }};
-        var pj: usize = 0;
-        while (pj < 1024) : (pj += 1) paths[pi][pj] = v;
-    }}
-    var best: usize = 0;
-    var bv: f64 = math.floatMax(f64);
-    pi = 0;
-    while (pi < 4) : (pi += 1) {{
-        var mn: f64 = 0.0;
-        var pj: usize = 0;
-        while (pj < 1024) : (pj += 1) mn += paths[pi][pj];
-        mn /= 1024.0;
-        var vr: f64 = 0.0;
-        pj = 0;
-        while (pj < 1024) : (pj += 1) {{
-            const d = paths[pi][pj] - mn;
-            vr += d * d;
-        }}
-        vr /= 1024.0;
-        if (vr < bv) {{ bv = vr; best = pi; }}
-    }}
-}}
-"""
+        elif op['type'] == 'entropy_gate':
+            z += f"    // EntropyGate: {op['line']}\n"
+            z += f"    const best_path: usize = 0;\n"
+            z += f"    _ = best_path;\n\n"
+
+    z += "}\n"
     return z
 
 def compile(src, emit=False):

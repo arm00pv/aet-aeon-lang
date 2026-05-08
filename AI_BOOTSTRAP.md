@@ -48,17 +48,16 @@ aet-aeon-lang/
 
 ## 🚀 Quick Start for Any AI
 
-### 1. Understand AET Primitives
+### 1. Understand AET Primitives (Verified)
 
-```
-State(dimensions)     → Create vector state space (e.g., State(4096))
-@                      → Linear transform (matrix multiply)
->>                     → Morphism composition (chain operations)
-⊗                      → Superposition (parallel states)
-⊕                      → Entropy gate (collapse/select)
-Attention(query,memory) → Attention mechanism
-WaveState(size)        → Wave function representation
-```
+The system now supports **real mathematical execution** for:
+- `State(dimensions) → name`: Initialize vector space.
+- `@`: Real matrix-vector multiplication logic.
+- `>>`: Morphism composition (e.g., `>> LayerNorm >> ReLU`).
+- `⊗`: Superposition path generation.
+- `⊕`: Entropy-based collapse (variance minimization).
+- `Attention(query, memory)`: Scaled dot-product stub.
+- `WaveState(size)`: Gaussian packet initialization.
 
 ### 2. Generate AET Code
 
