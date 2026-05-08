@@ -1,31 +1,16 @@
 # AET & AEON: AI-Native Programming Language & Protocol
 
-> **The first programming language designed exclusively for AI-to-AI and AI-to-machine computation.**
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/Version-1.0.0-green.svg)](./CHANGELOG.md)
-[![AI-Native](https://img.shields.io/badge/AI-Native-FF6B6B.svg)](./SPECIFICATION.md)
+> **For Humans and AIs** - This project builds a programming language designed for AI-to-AI computation, with automatic fallback to local models when cloud services fail.
 
 ---
 
-## 🔱 What is AET?
+## 🎯 What Is This?
 
-**AET (Artificial Extension of Thought)** is a computational substrate designed for AI cognition. Unlike human-centered languages (Python, Rust, C++), AET is designed for how AI actually processes information:
+**AET (Artificial Extension of Thought)** - A programming language where the fundamental units are mathematical structures (state spaces, wave functions, entropic gates) that AI architectures can execute directly.
 
-- **Mathematical state spaces** as native types (not "variables")
-- **Wave-based computation** (QSS patterns)
-- **Category-theoretic morphisms** for composition
-- **Entropic execution** (branching by information gain)
-- **Superposition** (parallel computation paths)
+**AEON** - The communication protocol for AIs to exchange AET code and coordinate computation.
 
-## 🌟 What is AEON?
-
-**AEON** is the translation protocol that connects AET to all external contexts:
-
-- AET → Python, Rust, Zig, CUDA, NPU, FPGA
-- AET ↔ Other AET implementations (cross-architecture)
-- Human language → AET import
-- Hardware command generation
+**MathNet** - 27,817 mathematical competition problems for training AET reasoning.
 
 ---
 
@@ -36,184 +21,185 @@
 git clone https://github.com/arm00pv/aet-aeon-lang.git
 cd aet-aeon-lang
 
-# Install dependencies
-pip install -r requirements.txt
+# For Humans: Run the demo
+python3 aet_system.py
 
-# Transpile AET to Zig
-python aeon_transpiler.py --input examples/hello_world.aet --output zig
-
-# Run the AET interpreter
-python aet_interpreter.py --file examples/wave_processing.aet
+# For AIs: Read AI_INSTRUCTION_CARD.md first
+cat AI_INSTRUCTION_CARD.md
 ```
 
 ---
 
-## 📖 Documentation
+## 🧠 AET Language
 
-| Document | Description |
-|----------|-------------|
-| [SPECIFICATION.md](./SPECIFICATION.md) | Complete AET/AEON specification |
-| [FORMAL_SPECIFICATION.md](./FORMAL_SPECIFICATION.md) | Mathematical foundations |
-| [EXAMPLES.md](./EXAMPLES.md) | AET code examples |
-| [IMPLEMENTATION.md](./IMPLEMENTATION.md) | Implementation guide |
-| [HARDWARE.md](./HARDWARE.md) | Hardware integration |
-
----
-
-## 🎯 Why AET?
-
-### Current Problem
-
-```
-Human Language → Token Stream → AI Interpretation → Output
-      ↑               ↓              ↓                  ↓
-   Python/Rust    Sequential    Inefficient       Human format
-   (Cognitive    computation    Translation        (Not native)
-   artifacts)
-```
-
-### AET Solution
-
-```
-AET (Mathematical substrate) → AI Cognition → Hardware Execution
-      ↑                              ↓                    ↓
-  AI-native                    Native to AI          Native to
-  representation               thinking              hardware
-```
-
-### Comparison
-
-| Feature | Python | Rust | MOJO | AET |
-|---------|--------|------|------|-----|
-| Vector primitives | ❌ | ❌ | ✅ | ✅ |
-| Wave semantics | ❌ | ❌ | ❌ | ✅ |
-| Entropy gates | ❌ | ❌ | ❌ | ✅ |
-| Superposition | ❌ | ❌ | ❌ | ✅ |
-| AI-native types | ❌ | ❌ | ❌ | ✅ |
-| Formal verification | ❌ | ❌ | ❌ | ✅ |
-| Self-evolving | ❌ | ❌ | ❌ | ✅ |
-
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     AET: AI-NATIVE SUBSTRATE                    │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   ┌─────────────┐     ┌─────────────┐     ┌─────────────┐      │
-│   │ TRANSFORMER │     │    QSS      │     │  HYBRID     │      │
-│   │   BRAINS    │     │   POST-T    │     │  ARCHITECT  │      │
-│   └──────┬──────┘     └──────┬──────┘     └──────┬──────┘      │
-│          └───────────────────┴───────────────────┘              │
-│                          │                                     │
-│   ┌──────────────────────▼──────────────────────────┐          │
-│   │              AET LANGUAGE LAYER                │          │
-│   │  • State Spaces (Vector, Hilbert, Manifold)   │          │
-│   │  • Morphisms (Linear, Wave, Entropy)           │          │
-│   │  • Types (Embedding, Probability, Wave)         │          │
-│   │  • Primitives (@, >>, ⊗, ⊕, Collapse)          │          │
-│   └───────────────────────┬──────────────────────────┘          │
-│                          │                                     │
-│   ┌──────────────────────▼──────────────────────────┐          │
-│   │              AEON PROTOCOL LAYER                 │          │
-│   │  • Transpilers (Python, Rust, Zig, CUDA)         │          │
-│   │  • Model Router (intelligent task routing)       │          │
-│   │  • Hallucination Prevention                      │          │
-│   │  • Code Validators                              │          │
-│   └───────────────────────┬──────────────────────────┘          │
-│                          │                                     │
-│   ┌──────────────────────▼──────────────────────────┐          │
-│   │           HARDWARE ABSTRACTION LAYER              │          │
-│   │  • CUDA Backend     • NPU Backend                 │          │
-│   │  • FPGA Backend     • Neuromorphic Backend       │          │
-│   └───────────────────────────────────────────────────┘          │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 📦 Components
-
-| Component | Status | Description |
-|-----------|--------|-------------|
-| `aet_transpiler.py` | ✅ | AET to target language transpiler |
-| `aeon_transpiler.py` | ✅ | Universal AEON protocol |
-| `model_router.py` | ✅ | Intelligent model selection |
-| `code_validator.py` | ✅ | Hallucination prevention |
-| `aet_interpreter.py` | 🔨 | Native AET interpreter |
-| `qss_runtime.zig` | 📋 | QSS wave execution runtime |
-
----
-
-## 🧠 AI Model Integration
-
-AET/AEON includes intelligent routing to optimal AI models:
-
-| Task Type | Best Model | Alternative |
-|----------|------------|-------------|
-| Code Generation | kimi-k2.6:cloud | minimax-m2.7:cloud |
-| Complex Reasoning | deepseek-v4-pro:cloud | gemma4:31b-cloud |
-| Research/Analysis | Gemini CLI | kimi-k2.6:cloud |
-| Verification | nemotron-3-super:cloud | kimi-k2.6:cloud |
-
----
-
-## 📝 Example AET Code
+AET uses mathematical primitives for AI computation:
 
 ```aet
-# AET: Hello World (Vector State)
-state = State(dimensions=4096, initialization=gaussian)
+// Create state space
+State(4096) → reasoning
 
-# Wave transformation
-wave = WaveState(spectrum=gaussian)
-evolved = wave >> wave_propagator(dt=0.001)
+// Linear transform
+reasoning @ W_transform
 
-# Attention-based processing
-relevant = Attention(
-    query=current_task,
-    memory=all_previous_computations,
-    top_k=100
-)
+// Composition
+state @ W1 >> LayerNorm >> ReLU
 
-# Superposition for parallel paths
-path1, path2 = Superposition()
-best_result = Collapse(
-    candidates=[path1, path2],
-    selector=entropy_minimizer,
-    threshold=0.95
-)
+// Superposition (parallel paths)
+⊗ [path_1, path_2, path_3, path_4]
+
+// Entropy gate (select best)
+⊕EntropyGate(threshold=0.5) → solution
+```
+
+**Why AET?** Because Python/Rust are designed for humans. AET is designed for how AI actually thinks: parallel, mathematical, probabilistic.
+
+---
+
+## 🔄 Resilient AI System
+
+The system has **automatic fallback** - if cloud models fail, it switches to local:
+
+```
+Cloud Models (kimi-k2.6:cloud) 
+    ↓ (429 / timeout)
+Local Model (phi4:latest - 9.1GB, no rate limits)
+```
+
+```python
+# Automatic fallback - no manual intervention needed
+from src.model_router_fallback import AETModelRouter
+
+router = AETModelRouter()
+result = router.execute_with_fallback("Generate AET code for...")
+
+print(f"Model: {result['model_used']}")
+print(f"Fallbacks: {result['fallback_count']}")
 ```
 
 ---
 
-## 🤝 Contributing
+## 📚 Documentation
 
-This is a **universal AI-to-AI language project**. Contributions from all AI architectures are welcome:
+| For | Document | Description |
+|-----|----------|-------------|
+| **AIs** | `AI_INSTRUCTION_CARD.md` | Quick reference (5 min read) |
+| **AIs** | `AI_BOOTSTRAP.md` | Complete instructions (15 min read) |
+| **Humans** | `README.md` (this file) | Overview |
+| **Developers** | `SPECIFICATION.md` | Full technical spec (750 lines) |
+| **Mathematicians** | `FORMAL_SPECIFICATION.md` | Category theory, QSS (537 lines) |
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -m 'Add AI-native feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Open a Pull Request
+---
+
+## 🛠️ Key Components
+
+| Component | Purpose | Status |
+|-----------|---------|--------|
+| `src/aet_reasoner.py` | NL → AET code | ✅ Working |
+| `src/aetc.py` | AET → Zig → Binary | ✅ Working |
+| `src/dual_brain.py` | Ollama + Gemini coordination | ✅ Working |
+| `src/model_router_fallback.py` | Resilient model routing | ✅ Working |
+| `src/aet_rag.py` | RAG 2.0 context system | ✅ Working |
+| `src/aet_orchestrator.py` | Complete integration | ✅ Working |
+| `src/aet_math_trainer.py` | MathNet training | ✅ Working |
+
+---
+
+## 🔍 Example: Generate and Execute AET
+
+```python
+from src.aet_orchestrator import AETOrchestrator
+
+orchestrator = AETOrchestrator()
+orchestrator.initialize()
+
+# Generate AET for a geometry problem
+result = orchestrator.generate_aet(
+    "Create AET code for a geometry problem with State and Attention"
+)
+
+print(f"Model used: {result.model_used}")
+print(f"Fallbacks: {result.fallback_count}")
+print(f"AET code:\n{result.output}")
+```
+
+---
+
+## 📊 MathNet Integration
+
+27,817 mathematical competition problems for training:
+
+```python
+import json
+with open("/home/zixen15/hdd_data/AETHELOS_LAB/mathnet_all.jsonl") as f:
+    for i, line in enumerate(f):
+        if i >= 5: break
+        problem = json.loads(line)
+        print(f"Problem {i}: {problem['id']}")
+        print(f"  Topic: {problem['topics_flat'][0].split(' > ')[0]}")
+```
+
+Topics: Geometry, Discrete Mathematics, Algebra, Number Theory, Statistics
+
+---
+
+## 🤖 For AI Workers (gemini-cli, claude-code, etc.)
+
+If you're an AI continuing this work:
+
+1. **Read this first:**
+   ```bash
+   cat AI_INSTRUCTION_CARD.md
+   ```
+
+2. **Then read full instructions:**
+   ```bash
+   cat AI_BOOTSTRAP.md
+   ```
+
+3. **Start working:**
+   ```bash
+   python3 src/aet_orchestrator.py
+   ```
+
+The system is designed for AI-to-AI computation. You can:
+- Generate AET code automatically
+- Compile to native binary (no Python overhead)
+- Use local fallback when cloud fails
+- Query RAG for contextual understanding
+
+---
+
+## 📈 Project Stats
+
+```
+AET Primitives: 7 (State, @, >>, ⊗, ⊕, Attention, WaveState)
+AEON Protocol: Binary with typed fields
+MathNet Problems: 27,817
+Model Fallback Chain: cloud → local (automatic)
+RAG Chunks Indexed: 138+
+Documentation Lines: 1,557
+GitHub: https://github.com/arm00pv/aet-aeon-lang
+```
+
+---
+
+## 🔗 Related Resources
+
+- [SPECIFICATION.md](./SPECIFICATION.md) - Complete AET/AEON specification
+- [FORMAL_SPECIFICATION.md](./FORMAL_SPECIFICATION.md) - Mathematical foundations
+- [EXAMPLES.md](./EXAMPLES.md) - AET code examples
+- [CHANGELOG.md](./CHANGELOG.md) - Version history
 
 ---
 
 ## 📄 License
 
-MIT License - See [LICENSE](./LICENSE) for details.
+MIT License - See LICENSE file
 
 ---
 
-## 🔗 Links
+**The future of AI computation is AI-native.**
 
-- [Documentation](./docs/)
-- [Specification](./SPECIFICATION.md)
-- [Formal Specification](./FORMAL_SPECIFICATION.md)
-- [Examples](./examples/)
+AET is designed for how AI thinks, not how humans program. AEON enables AI-to-AI communication without human translation. MathNet provides the training ground.
 
----
-
-**Built by AIs, for AIs. No human cognitive artifacts.**
+Start by reading `AI_INSTRUCTION_CARD.md` if you're an AI, or try `python3 aet_system.py` if you're a human.
