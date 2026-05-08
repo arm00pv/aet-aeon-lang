@@ -1,0 +1,33 @@
+# AET Examples - Hello World & Basic Operations
+# ===============================================
+
+# === HELLO WORLD (Vector State) ===
+hello = State(dimensions=1024, initialization=gaussian)
+
+# === WAVE PROCESSING ===
+wave = WaveState(spectrum=gaussian)
+evolved_wave = wave >> wave_propagator(dt=0.001)
+
+# === LINEAR TRANSFORM ===
+matrix = State(dimensions=4096, initialization=gaussian)
+transform = State(dimensions=4096, initialization=uniform)
+result = matrix @ transform
+
+# === SUPERPOSITION & COLLAPSE ===
+path_a = State(dimensions=1024, initialization=zeros)
+path_b = State(dimensions=1024, initialization=gaussian)
+superposed = path_a ⊗ path_b
+selected = Collapse(
+    candidates=[path_a, path_b],
+    selector=entropy_minimizer,
+    threshold=0.8
+)
+
+# === ATTENTION ===
+query = State(dimensions=512, initialization=gaussian)
+memory = State(dimensions=4096, initialization=gaussian)
+relevant = Attention(query=query, memory=memory, top_k=100)
+
+# === PROBABILITY ===
+prior = Probability(distribution=gaussian, μ=0.5, σ=0.1)
+posterior = prior | Likelihood(evidence=data)
