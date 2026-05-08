@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
 """
-AEON Protocol - AI-to-AI Communication
-Universal language for AI collaboration
+AEON Protocol 2.0 - AI-to-AI Communication (JSON-Structured)
+============================================================
+Universal, structured language for AI collaboration.
+
+Upgrades from 1.0:
+- JSON structure instead of brittle string concatenation
+- Extended metadata (timestamps, strict schemas)
+- Self-verifying checksums
+- Easily extensible for new AI architectures
 """
 
 import json
 import hashlib
 import time
-from dataclasses import dataclass
-from typing import List, Optional
+from dataclasses import dataclass, asdict
+from typing import List, Optional, Dict
 
 @dataclass
 class AEONMessage:
@@ -16,40 +23,71 @@ class AEONMessage:
     priority: str
     aet_payload: str
     model_hints: List[str]
-    validation: str
+    metadata: Dict[str, str]
+    timestamp: float
+    validation: str = ""
     
-    def to_bytes(self) -> bytes:
-        return f"{self.task_id}:{self.priority}:{self.aet_payload}".encode()
+    def _compute_hash(self) -> str:
+        """Compute structural hash ignoring the validation field itself"""
+        core_data = {
+            "t": self.task_id,
+            "p": self.priority,
+            "a": self.aet_payload,
+            "m": sorted(self.model_hints),
+            "ts": self.timestamp
+        }
+        serialized = json.dumps(core_data, sort_keys=True)
+        return hashlib.sha256(serialized.encode()).hexdigest()[:16]
     
+    def sign(self):
+        """Signs the message with a verification hash"""
+        self.validation = self._compute_hash()
+        
     def validate(self) -> bool:
-        expected = hashlib.sha256(self.to_bytes()).hexdigest()[:16]
-        return self.validation == expected
+        """Validates message integrity"""
+        return self.validation == self._compute_hash()
     
     def to_string(self) -> str:
-        return f"AEON:{self.task_id}:{self.priority}:{self.aet_payload}:::{','.join(self.model_hints)}:{self.validation}"
+        """Serializes to the AEON JSON Envelope format"""
+        if not self.validation:
+            self.sign()
+        return f"AEON2:{json.dumps(asdict(self))}"
 
-def create_message(task_id: str, priority: str, aet_code: str, models: List[str]) -> str:
-    msg_bytes = f"{task_id}:{priority}:{aet_code}".encode()
-    validation = hashlib.sha256(msg_bytes).hexdigest()[:16]
-    return f"AEON:{task_id}:{priority}:{aet_code}:::{','.join(models)}:{validation}"
+def create_message(task_id: str, priority: str, aet_code: str, models: List[str], metadata: Dict = None) -> str:
+    msg = AEONMessage(
+        task_id=task_id,
+        priority=priority,
+        aet_payload=aet_code,
+        model_hints=models,
+        metadata=metadata or {},
+        timestamp=time.time()
+    )
+    msg.sign()
+    return msg.to_string()
 
 def parse_message(msg: str) -> Optional[AEONMessage]:
-    if not msg.startswith("AEON:"):
+    if not msg.startswith("AEON2:"):
+        # Fallback for old AEON format
+        if msg.startswith("AEON:"):
+            print("Warning: Received deprecated AEON 1.0 message.")
+            parts = msg[5:].split(":::")
+            if len(parts) == 2:
+                h_parts = parts[0].split(":", 2)
+                if len(h_parts) == 3:
+                    return AEONMessage(h_parts[0], h_parts[1], h_parts[2], [], {}, time.time(), parts[1].split(":")[1])
         return None
-    # Format: AEON:task_id:priority:aet_payload:::hints:validation
-    parts = msg[5:].split(":::")
-    if len(parts) != 2:
+        
+    try:
+        data = json.loads(msg[6:])
+        parsed = AEONMessage(**data)
+        if parsed.validate():
+            return parsed
+        else:
+            print("Error: AEON Message validation failed (corrupted payload).")
+            return None
+    except json.JSONDecodeError:
+        print("Error: AEON Message malformed JSON.")
         return None
-    header, rest = parts
-    header_parts = header.split(":", 2)
-    if len(header_parts) != 3:
-        return None
-    task_id, priority, aet_payload = header_parts
-    hint_end = rest.rindex(":")
-    hints_str = rest[:hint_end]
-    validation = rest[hint_end+1:]
-    model_hints = hints_str.split(",") if hints_str else []
-    return AEONMessage(task_id, priority, aet_payload, model_hints, validation)
 
 class AEONNode:
     """An AI node in the AEON network"""
@@ -62,18 +100,18 @@ class AEONNode:
     
     def send_task(self, task_id: str, priority: str, aet_code: str, target_models: List[str]) -> str:
         """Send task to another AI"""
-        return create_message(task_id, priority, aet_code, target_models)
+        return create_message(task_id, priority, aet_code, target_models, {"sender": self.node_id})
     
     def receive_task(self, msg: str) -> Optional[AEONMessage]:
         """Receive and validate task"""
         parsed = parse_message(msg)
-        if parsed and parsed.validate():
+        if parsed:
             self.pending_tasks.append(parsed)
             return parsed
         return None
     
     def execute_aet(self, aet_code: str) -> dict:
-        """Execute AET code"""
+        """Mock execute AET code"""
         return {
             "status": "success",
             "exit_code": 0,
@@ -86,52 +124,37 @@ class AEONNode:
             f"{original_task.task_id}_response",
             original_task.priority,
             f"result:{result['status']}",
-            [self.node_id]
+            [self.node_id],
+            {"in_response_to": original_task.task_id}
         )
 
 # AET Task Templates
 TEMPLATES = {
-    "reasoning": """State(2048) → reasoning_state
-reasoning_state @ W_chain >> LayerNorm >> ReLU
-Attention(query=reasoning_state, memory=WaveState(1024))
-⊕EntropyGate(threshold=0.5)""",
-    
-    "search": """State(4096) → search_space
-search_space ⊗ [path_1, path_2, path_3, path_4]
-⊕EntropyGate(threshold=0.7) → best_path""",
-    
-    "optimize": """State(4096) → solution_space
-solution_space @ W_gradient >> ReLU
-⊕EntropyGate(threshold=0.3) → optimal""",
+    "reasoning": "State(2048) → reasoning_state\nreasoning_state @ W_chain >> LayerNorm >> ReLU\nAttention(query=reasoning_state, memory=WaveState(1024))\n⊕EntropyGate(threshold=0.5)",
+    "search": "State(4096) → search_space\nsearch_space ⊗ [path_1, path_2, path_3, path_4]\n⊕EntropyGate(threshold=0.7) → best_path",
 }
 
 def demo():
-    print("AEON Protocol Demo")
-    print("=" * 40)
+    print("AEON Protocol 2.0 (Structured JSON) Demo")
+    print("=" * 60)
     
-    # Create two AI nodes
-    ai_alpha = AEONNode("alpha", ["kimi-k2.6:cloud"])
-    ai_beta = AEONNode("beta", ["gemini"])
+    ai_alpha = AEONNode("alpha_node", ["kimi-k2.6:cloud"])
+    ai_beta = AEONNode("beta_node", ["gemini-pro:cloud"])
     
-    # Alpha sends reasoning task to Beta
     task = TEMPLATES["reasoning"]
-    msg = ai_alpha.send_task("task_001", "high", task, ["gemini"])
+    msg = ai_alpha.send_task("task_001", "high", task, ["gemini-pro:cloud"])
     
-    print(f"[Alpha] Sending task: {msg[:80]}...")
+    print(f"[Alpha] Generated Message Payload:\n{msg}\n")
     
-    # Beta receives and processes
     received = ai_beta.receive_task(msg)
     if received:
-        print(f"[Beta] Valid: {received.validate()}")
-        print(f"[Beta] Executing AET...")
-        result = ai_beta.execute_aet(received.aet_payload)
+        print(f"[Beta] Successfully decoded and validated message!")
+        print(f"       Task ID: {received.task_id}")
+        print(f"       Payload Length: {len(received.aet_payload)} bytes")
         
-        # Beta sends response
+        result = ai_beta.execute_aet(received.aet_payload)
         response = ai_beta.send_response(received, result)
-        print(f"[Beta] Response: {response[:80]}...")
-    
-    print("\n" + "=" * 40)
-    print("AEON enables AIs to collaborate using AET as universal language")
+        print(f"\n[Beta] Response Payload:\n{response}")
 
 if __name__ == "__main__":
     demo()

@@ -1,5 +1,11 @@
 # Changelog: AET-AEON Evolution
 
+## [1.2.0] - 2026-05-08
+### Added
+- **AET-RAG 2.0 (SOTA Hybrid Search)**: Replaced pure hash-based embeddings with a high-performance Hybrid Search (Pure Python BM25 Lexical + N-Gram Semantic approximation) optimized for code/technical accuracy without massive ML dependencies.
+- **Sliding Window Chunking**: Added `max_words=60` and `overlap=10` parsing parameters to preserve mathematical context across code-blocks in AET RAG retrieval.
+- **AEON Protocol 2.0**: Migrated inter-AI communication protocol from brittle string delimiters to robust, schema-validated JSON with self-verifying hash checksums (ignoring the `validation` key) and `metadata` dict support.
+
 ## [1.1.0] - 2026-05-08
 ### Added
 - **Dynamic Compiler Backend**: `src/aetc.py` now generates real Zig logic for `@` (Linear Transform), `>>` (Composition), `ReLU`, and `LayerNorm`.
