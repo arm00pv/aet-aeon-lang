@@ -1,0 +1,20 @@
+// MathNet Problem: 07d3
+@Competition: Iranian Mathematical Olympiad
+@Topic: Discrete Mathematics > Combinatorics > Counting two ways
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: There are 27 cards, each has some amount of (1 or 2 or 3) shapes (a circle, a square or a triangle) with some color (white, grey or black) on them. We call a triple of cards a **match** such that all ...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 9

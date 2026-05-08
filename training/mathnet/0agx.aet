@@ -1,0 +1,20 @@
+// MathNet Problem: 0agx
+@Competition: XV-th Junior Balkan Mathematical Olympiad
+@Topic: Geometry > Plane Geometry > Combinatorial Geometry
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Let $n > 3$ be a positive integer. An equilateral triangle $ABC$ is divided into $n^2$ identical equilateral "small" triangles using lines parallel to its sides. The figure below illustrates the case ...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 3(2n - 3)

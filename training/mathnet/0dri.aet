@@ -1,0 +1,20 @@
+// MathNet Problem: 0dri
+@Competition: Singapur 2015
+@Topic: Discrete Mathematics > Combinatorics > Coloring schemes, extremal arguments
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Is it possible to color each square on a $9 \times 9$ board so that each $2 \times 3$ or $3 \times 2$ block contains exactly $2$ black squares? If so, what is/are the possible total number(s) of black...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: Yes; 27

@@ -1,0 +1,20 @@
+// MathNet Problem: 0akr
+@Competition: Macedonian Mathematical Olympiad
+@Topic: Geometry > Plane Geometry > Advanced Configurations > Simson line
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Let $\triangle ABC$ be an acute triangle with orthocenter $H$. The point $H'$ is symmetric with $H$ with respect to the line $AB$. Let $N$ be the intersection point of $HH'$ and $AB$. The circle passi...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

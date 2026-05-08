@@ -1,0 +1,22 @@
+// MathNet Problem: 090z
+@Competition: MEMO Mathematical Olympiad
+@Topic: Geometry > Plane Geometry > Miscellaneous > Angle chasing
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+Let $n \geq 3$ be an integer. We say that a vertex $A_{i}$ ($1 \leq i \leq n$) of a convex polygon $A_{1} A_{2} \ldots A_{n}$ is Bohemian if its reflection with respect to the midpoint of th...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: n−3

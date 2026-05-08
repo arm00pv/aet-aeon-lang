@@ -1,0 +1,20 @@
+// MathNet Problem: 06au
+@Competition: 40th Hellenic Mathematical Olympiad
+@Topic: Discrete Mathematics > Combinatorics > Pigeonhole principle
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: A class consists of 26 students, sitting in pairs. At the second term they decide to change positions in order every two students that sat together on the first term, they are not sitting together in ...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 13

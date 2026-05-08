@@ -1,0 +1,20 @@
+// MathNet Problem: 04u6
+@Competition: Czech-Polish-Slovak Match
+@Topic: Geometry > Plane Geometry > Triangles > Triangle centers: centroid, incenter, circumcenter, Euler line, nine-point circle
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Let $ABC$ be an acute scalene triangle. Let $D$ and $E$ be points on the sides $AB$ and $AC$, respectively, such that $BD = CE$. Denote by $O_1$ and $O_2$ the circumcentres of the triangles $ABE$ and ...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

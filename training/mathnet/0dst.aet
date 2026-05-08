@@ -1,0 +1,20 @@
+// MathNet Problem: 0dst
+@Competition: Singapore Mathematical Olympiad
+@Topic: Geometry > Plane Geometry > Miscellaneous > Angle chasing
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: You are given some equilateral triangles and squares, all with side length $1$, and asked to form convex $n$ sided polygons using these pieces. If both types must be used, what are the possible values...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 5, 6, 7, 8, 9, 10, 11, 12

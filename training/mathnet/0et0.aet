@@ -1,0 +1,20 @@
+// MathNet Problem: 0et0
+@Competition: The South African Mathematical Olympiad, Third Round
+@Topic: Geometry > Plane Geometry > Miscellaneous > Angle chasing
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Let $A$, $B$, $C$ be points on a circle whose centre is $O$ and whose radius is $1$, such that $\angle BAC = 45^\circ$. Lines $AC$ and $BO$ (possibly extended) intersect at $D$, and lines $AB$ and $CO...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

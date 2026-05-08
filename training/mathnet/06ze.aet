@@ -1,0 +1,22 @@
+// MathNet Problem: 06ze
+@Competition: Iberoamerican Mathematical Olympiad
+@Topic: Geometry > Plane Geometry > Circles > Tangents
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+The circle $C$ has diameter $AB$. The tangent at $B$ is $T$. For each point $M$ (not equal to $A$) on $C$ there is a circle $C'$ which touches $T$ and touches $C$ at $M$. Find the point at w...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: The tangency point on T is N = AM ∩ T. The locus of centers O′ is the parabola y^2 = 4ax with vertex at B and axis along AB (with coordinates B = (0,0), A = (2a,0), O = (a,0)). A fixed circle orthogonal to every C′ is the circle centered at A with radius AB.

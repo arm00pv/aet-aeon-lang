@@ -1,0 +1,20 @@
+// MathNet Problem: 0eu5
+@Competition: 20th Korean Mathematical Olympiad Final Round
+@Topic: Discrete Mathematics > Combinatorics > Recursion, bijection
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Consider the sixteen tiles fixed on a wall as shown below. How many ways are there to write either $0$ or $1$ on each tile so that the product of the two numbers written on every neighboring pair of t...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 1234

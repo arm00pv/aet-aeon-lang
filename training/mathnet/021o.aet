@@ -1,0 +1,26 @@
+// MathNet Problem: 021o
+@Competition: None
+@Topic: Algebra > Prealgebra / Basic Algebra > Simple Equations
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+Amanda desenhou a seguinte figura:
+![](attached_image_1.png)
+Observe que a soma ao longo de qualquer lado do triângulo acima é sempre a mesma, pois, como podemos verificar,
+$$
+1+3+6=6+2+2=1+...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: a) The top-right corner is 2; the remaining missing numbers are 1 and 3, yielding equal sums of 10 along each side. b) Let the two top corners be x and y; all sums equal x plus nine plus y, and consistency forces y = x plus eleven, with bottom corners y minus six and x plus three, giving infinitely many solutions parameterized by x. c) Both highlighted gray circles have the value 4.

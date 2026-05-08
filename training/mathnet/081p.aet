@@ -1,0 +1,22 @@
+// MathNet Problem: 081p
+@Competition: Progetto Olimpiadi di Matematica
+@Topic: Geometry > Plane Geometry > Analytic / Coordinate Methods > Cartesian coordinates
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+Michela e Nicola stanno correndo lungo il perimetro di un parco $C$ quadrato $A B C D$ di diagonale $6~\mathrm{km}$. Essi corrono in senso orario alla stessa velocità. Il loro cane Pallino c...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 6

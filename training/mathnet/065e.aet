@@ -1,0 +1,20 @@
+// MathNet Problem: 065e
+@Competition: 26th Hellenic Mathematical Olympiad
+@Topic: Geometry > Plane Geometry > Triangles > Triangle centers: centroid, incenter, circumcenter, orthocenter, Euler line, nine-point circle
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: From the vertex $A$ of an equilateral triangle $ABC$ we draw the ray $Ax$ which intersects the side $B\Gamma$ at $\Delta$. On $Ax$ we consider a point $E$ such that $BA = BE$. Find the angle $A\hat{E}...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 30°

@@ -1,0 +1,22 @@
+// MathNet Problem: 07cz
+@Competition: Iranian Mathematical Olympiad
+@Topic: Geometry > Plane Geometry > Circles > Tangents
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Quadrilateral $ABCD$ and point $T$ in its interior is given such that $AC$ is the angle bisector of $\widehat{BCD}$ and
+$$
+\widehat{ABC} - \widehat{ATD} = \widehat{DAC}, \quad \widehat{ADC} - \widehat...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

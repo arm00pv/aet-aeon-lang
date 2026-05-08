@@ -1,0 +1,22 @@
+// MathNet Problem: 05rp
+@Competition: Préparation Olympique Française de Mathématiques
+@Topic: Discrete Mathematics > Combinatorics > Coloring schemes, extremal arguments
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+Chaque case d'un tableau de taille $8 \times 8$ peut être coloriée en blanc ou en noir, de telle sorte que chaque rectangle de taille $2 \times 3$ ou $3 \times 2$ contient deux cases noires ...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 24

@@ -1,0 +1,20 @@
+// MathNet Problem: 0l9s
+@Competition: Vijetnam 2006
+@Topic: Discrete Mathematics > Combinatorics > Invariants / monovariants
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Let $m$ and $n$ be two integers greater than $3$ and let be given a rectangular $m \times n$ board. At each step, one puts simultaneously $4$ marbles into $4$ cells of the board (each marble into a ce...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: i) Yes. ii) No.

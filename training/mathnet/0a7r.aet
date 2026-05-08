@@ -1,0 +1,22 @@
+// MathNet Problem: 0a7r
+@Competition: Nordic Mathematical Contest, NMC 9
+@Topic: Geometry > Plane Geometry > Miscellaneous > Angle chasing
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+Let $AB$ be a diameter of a circle with centre $O$. We choose a point $C$ on the circumference of the circle such that $OC$ and $AB$ are perpendicular to each other. Let $P$ be an arbitrary ...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

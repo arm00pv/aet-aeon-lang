@@ -1,0 +1,22 @@
+// MathNet Problem: 05dk
+@Competition: EGMO
+@Topic: Geometry > Plane Geometry > Circles > Tangents
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+Let $\Omega$ be the circumcircle of the triangle $A B C$. The circle $\omega$ is tangent to the sides $A C$ and $B C$, and it is internally tangent to $\Omega$ at the point $P$. A line paral...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

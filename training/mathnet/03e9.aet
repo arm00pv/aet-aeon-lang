@@ -1,0 +1,20 @@
+// MathNet Problem: 03e9
+@Competition: Autumn tournament
+@Topic: Geometry > Plane Geometry > Combinatorial Geometry > Helly's theorem
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: A set of points in the plane is called good if the distance between any two points in it is at most $1$. Let $f(n, d)$ be the largest positive integer such that in any good set of $3n$ points, there i...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: n

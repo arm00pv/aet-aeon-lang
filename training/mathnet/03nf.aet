@@ -1,0 +1,21 @@
+// MathNet Problem: 03nf
+@Competition: Canadian Mathematical Olympiad
+@Topic: Discrete Mathematics > Combinatorics > Recursion, bijection
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+Let $m$ and $n$ be positive integers. A $2m \times 2n$ grid of squares is coloured in the usual chessboard fashion. Find the number of ways of placing $mn$ counters on the white squares, at m...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: (m+n choose m)

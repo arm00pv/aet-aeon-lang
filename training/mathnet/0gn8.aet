@@ -1,0 +1,20 @@
+// MathNet Problem: 0gn8
+@Competition: Team Selection Test for IMO 2007
+@Topic: Discrete Mathematics > Combinatorics > Inclusion-exclusion
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: An airline company is planning to run two-way flights between some of the six cities $A$, $B$, $C$, $D$, $E$ and $F$. Determine the number of ways these flights can be arranged so that it is possible ...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 26704

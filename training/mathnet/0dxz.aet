@@ -1,0 +1,20 @@
+// MathNet Problem: 0dxz
+@Competition: Slovenija 2008
+@Topic: Geometry > Plane Geometry > Triangles > Triangle centers: centroid, incenter, circumcenter, orthocenter, Euler line, nine-point circle
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Let $A$, $B$, $C$, $D$ and $E$ be consecutive points on a circle with the centre at $O$, such that $|AC| = |BD| = |CE| = |DO|$. Let $H_1$, $H_2$ and $H_3$ be the orthocentres of the triangles $ACD$, $...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

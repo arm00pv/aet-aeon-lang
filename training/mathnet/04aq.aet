@@ -1,0 +1,21 @@
+// MathNet Problem: 04aq
+@Competition: CroatianCompetitions2011
+@Topic: Discrete Mathematics > Combinatorics > Invariants / monovariants
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Let $M$ and $N$ be positive integers. Consider an $N \times N$ square array consisting of $N^2$ lamps that can be in two states - on or off. At the beginning all lamps are turned off.
+A *move* consist...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: M divides N

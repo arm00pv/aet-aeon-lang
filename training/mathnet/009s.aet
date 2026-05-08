@@ -1,0 +1,20 @@
+// MathNet Problem: 009s
+@Competition: NATIONAL XXX OMA
+@Topic: Discrete Mathematics > Combinatorics > Coloring schemes, extremal arguments
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Each cell of an $n \times n$ grid square is colored black or white. We call such a coloring *nice* if every $2 \times 2$ square covers an even number of black cells, and every cross covers an odd numb...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: n ≡ 1 (mod 3)

@@ -1,0 +1,22 @@
+// MathNet Problem: 0lgk
+@Competition: Zhautykov Olympiad
+@Topic: Geometry > Plane Geometry > Circles > Tangents
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+In a convex cyclic hexagon $A B C D E F$, $B C = E F$ and $C D = A F$. Diagonals $A C$ and $B F$ intersect at point $Q$, and diagonals $E C$ and $D F$ intersect at point $P$. Points $R$ and ...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

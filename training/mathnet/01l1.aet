@@ -1,0 +1,20 @@
+// MathNet Problem: 01l1
+@Competition: 60th Belarusian Mathematical Olympiad
+@Topic: Discrete Mathematics > Combinatorics > Games / greedy algorithms
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Exactly one integer number is written in each cell of an $8 \times 8$ square table. Per move it is allowed to choose any $n \times n$ square, $1 < n < 8$, and either to increase by 1 or to decrease by...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: Yes

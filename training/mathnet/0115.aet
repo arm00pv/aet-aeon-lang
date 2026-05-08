@@ -1,0 +1,21 @@
+// MathNet Problem: 0115
+@Competition: Baltic Way
+@Topic: Discrete Mathematics > Combinatorics > Invariants / monovariants
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+A cube with edge length $3$ is divided into $27$ unit cubes. The numbers $1,2, \ldots, 27$ are distributed arbitrarily over the unit cubes, with one number in each cube. We form the $27$ poss...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 24

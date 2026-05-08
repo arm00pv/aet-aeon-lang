@@ -1,0 +1,21 @@
+// MathNet Problem: 03nj
+@Competition: Canadian Mathematical Olympiad
+@Topic: Geometry > Plane Geometry > Circles > Tangents
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+A circle is inscribed in a rhombus $A B C D$. Points $P$ and $Q$ vary on line segments $\overline{A B}$ and $\overline{A D}$, respectively, so that $\overline{P Q}$ is tangent to the circle. ...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

@@ -1,0 +1,20 @@
+// MathNet Problem: 099l
+@Competition: 45th Mongolian Mathematical Olympiad
+@Topic: Discrete Mathematics > Combinatorics > Coloring schemes, extremal arguments
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Consider an $17 \times 42$ table of squares. We put some balls into squares. After that, for each empty square, count the number of adjacent squares with balls, and write down that number in the empty...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 2009

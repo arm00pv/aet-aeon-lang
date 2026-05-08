@@ -1,0 +1,20 @@
+// MathNet Problem: 0cr9
+@Competition: XL Russian mathematical olympiad
+@Topic: Geometry > Plane Geometry > Quadrilaterals > Cyclic quadrilaterals
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Let $M$ be the midpoint of the side $AC$ of a triangle $ABC$. The points $P$ and $Q$ are chosen on the segments $AM$ and $MC$, respectively, so that $PQ = AC/2$. The circumcircle of the triangle $ABQ$...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

@@ -1,0 +1,20 @@
+// MathNet Problem: 09wj
+@Competition: Second Round
+@Topic: Discrete Mathematics > Algorithms
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: A square sheet of paper lying on the table is divided into $8 \times 8 = 64$ equal squares. These squares are numbered from **a1** to **h8** as on a chess board (see fig. 1). We now start folding, in ...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 43

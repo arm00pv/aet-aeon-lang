@@ -1,0 +1,22 @@
+// MathNet Problem: 0a9f
+@Competition: Nordic Mathematical Contest, NMC 24
+@Topic: Geometry > Plane Geometry > Triangles > Triangle trigonometry
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+Three circles $\Gamma_{A}$, $\Gamma_{B}$ and $\Gamma_{C}$ share a common point of intersection $O$. The other common point of $\Gamma_{A}$ and $\Gamma_{B}$ is $C$, that of $\Gamma_{A}$ and $...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

@@ -1,0 +1,20 @@
+// MathNet Problem: 0d4q
+@Competition: SAMC
+@Topic: Discrete Mathematics > Combinatorics > Coloring schemes, extremal arguments
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Majid wants to color the cells of an $n \times n$ chessboard into white and black so that each $2 \times 2$ subsquare contains two white cells and two black cells. In how many ways can Majid color thi...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 2^{n+1} - 2

@@ -1,0 +1,20 @@
+// MathNet Problem: 056b
+@Competition: Estonian Mathematical Olympiad
+@Topic: Geometry > Plane Geometry > Miscellaneous > Angle chasing
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Let $A'$ be the result of reflection of vertex $A$ of triangle $ABC$ through line $BC$ and let $B'$ be the result of reflection of vertex $B$ through line $AC$. Given that $\angle BA'C = \angle BB'C$,...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: a) No; b) Yes; c) Yes

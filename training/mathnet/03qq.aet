@@ -1,0 +1,22 @@
+// MathNet Problem: 03qq
+@Competition: International Mathematical Olympiad
+@Topic: Discrete Mathematics > Combinatorics > Invariants / monovariants
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Define a hook to be a figure made up of six unit squares as shown in the diagram or any of the figures obtained by applying rotations and reflections to this figure.
+![](attached_image_1.png)
+Determin...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: All rectangles with positive integer side lengths such that either (i) one side is divisible by 3 and the other by 4, or (ii) one side is divisible by 12 and the other is at least 7 (the roles of the sides may be interchanged).

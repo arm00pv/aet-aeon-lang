@@ -1,0 +1,24 @@
+// MathNet Problem: 0g7r
+@Competition: 二0一三數學奧林匹亞競賽第一階段選訓營
+@Topic: Discrete Mathematics > Combinatorics > Invariants / monovariants
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: 「虧格」是由三個邊長為 1 的正方形所組成的圖形：或將此圖形經由旋轉及翻轉所得之任意圖形。
+
+a. 在任何兩個「虧格」彼此不重疊的條件下，用 $3 \times 671$ 個「虧格」來鋪蓋在 $3 \times 2013$ 的大方格圖形，請問可以完全覆蓋滿嗎？
+
+b. 在任何兩個「虧格」彼此不重疊的條件下，用 $5 \times 671$ 個「虧格」來鋪蓋在 $5 \times 2013$ 的大方...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: a. No. b. Yes.

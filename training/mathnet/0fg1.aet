@@ -1,0 +1,22 @@
+// MathNet Problem: 0fg1
+@Competition: OME 21
+@Topic: Geometry > Plane Geometry > Triangles > Triangle centers: centroid, incenter, circumcenter, orthocenter, Euler line, nine-point circle
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+Se consideran las semirrectas no alineadas $O x, O y$. Por el punto $A \in O x$ se trazan pares de rectas $r_{1}, r_{2}$, antiparalelas respecto al ángulo $x O y$; sean $M, N$ las intersecci...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: The locus of P is a half-line in the direction of the internal bisector of ∠xOy (i.e., forming angle α/2 with Ox). For each position of A, P lies on the line AP parallel to the angle bisector; the admissible part is the ray starting at the unique point Q on AP where dist(P, Oy) = PA, equivalently the intersection of AP with the parabola having focus A and directrix Oy, and going away from A along AP.

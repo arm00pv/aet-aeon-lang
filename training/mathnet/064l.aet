@@ -1,0 +1,22 @@
+// MathNet Problem: 064l
+@Competition: Auswahlwettbewerb zur Internationalen Mathematik-Olympiade 2022
+@Topic: Geometry > Plane Geometry > Quadrilaterals > Cyclic quadrilaterals
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+Es sei $ABCD$ ein Parallelogramm mit $|AC| = |BC|$. Ein Punkt $P$ sei auf dem Strahl $AB$ gewählt, sodass $B$ zwischen $A$ und $P$ liegt. Der Umkreis des Dreiecks $ACD$ und die Strecke $PD$ ...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

@@ -1,0 +1,30 @@
+// MathNet Problem: 0955
+@Competition: A 61-a OLIMPIADA DE MATEMATICA A REPUBLICII MOLDOVA
+@Topic: Geometry > Plane Geometry > Analytic / Coordinate Methods > Cartesian coordinates
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+Aflați toate valorile parametrului real $a$, pentru care sistemul
+$$
+\left\{
+\begin{array}{c}
+x^{2}+5x+y^{2}-y-|x-5y+5|=51 \\
+a x - y - 5a + 2 = 0
+\end{array}
+\right.
+$$
+are exact 2 soluții r...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: a in (-2.4, +infinity)

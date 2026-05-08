@@ -1,0 +1,22 @@
+// MathNet Problem: 09tk
+@Competition: IMO-selectietoets
+@Topic: Geometry > Plane Geometry > Circles > Tangents
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+Gegeven is een driehoek $\triangle A B C$ met $\angle C=90^{\circ}$. Het midden van $A C$ noemen we $D$ en de loodrechte projectie van $C$ op $B D$ noemen we $E$. Bewijs dat de raaklijn in $...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

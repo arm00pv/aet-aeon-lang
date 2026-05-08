@@ -1,0 +1,21 @@
+// MathNet Problem: 06op
+@Competition: IMO 2006 Shortlisted Problems
+@Topic: Geometry > Solid Geometry > Other 3D problems
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Consider a convex polyhedron without parallel edges and without an edge parallel to any face other than the two faces adjacent to it.
+Call a pair of points of the polyhedron antipodal if there exist t...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: A - B = m - ℓ + 1 = n - 1

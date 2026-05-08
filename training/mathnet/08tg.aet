@@ -1,0 +1,20 @@
+// MathNet Problem: 08tg
+@Competition: Japan Mathematical Olympiad First Round
+@Topic: Geometry > Plane Geometry > Circles > Tangents
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: A circle $O_1$ of radius $2$ and a circle $O_2$ of radius $4$ are externally tangent at the point $P$. Points $A$ and $B$, both distinct from the point $P$, are chosen on the circumference of the circ...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 8/3

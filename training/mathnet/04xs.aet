@@ -1,0 +1,20 @@
+// MathNet Problem: 04xs
+@Competition: 12th Czech-Polish-Slovak Mathematics Competition
+@Topic: Discrete Mathematics > Graph Theory
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: The city of Mar del Plata has a shape of the square $WSEN$. For a given even integer $n$, it is divided by $2(n + 1)$ streets into $n \times n$ blocks (the streets run also around the square). Each bl...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: (2n^2 - 2n + 4)/10 km

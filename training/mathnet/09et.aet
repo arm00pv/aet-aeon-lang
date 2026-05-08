@@ -1,0 +1,20 @@
+// MathNet Problem: 09et
+@Competition: Mongolian Mathematical Olympiad
+@Topic: Discrete Mathematics > Graph Theory
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: There were two parallel railways, on the first of which are $n$ stations and on the other are $m$ stations. A company constructed a new station between the railways and connected by railways the new s...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: \frac{1}{5}\left(\left(\frac{3+\sqrt{5}}{2}\right)^n - \left(\frac{3-\sqrt{5}}{2}\right)^n\right)\left(\left(\frac{3+\sqrt{5}}{2}\right)^m - \left(\frac{3-\sqrt{5}}{2}\right)^m\right)

@@ -1,0 +1,22 @@
+// MathNet Problem: 0hsp
+@Competition: None
+@Topic: Geometry > Solid Geometry > Volume
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+Let $D$ be a dodecahedron which can be inscribed in a sphere with radius $R$. Let $I$ be an icosahedron which can also be inscribed in a sphere of radius $R$. Which has the greater volume, a...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: The dodecahedron has the greater volume.

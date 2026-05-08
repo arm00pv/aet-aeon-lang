@@ -1,0 +1,20 @@
+// MathNet Problem: 00rl
+@Competition: BMO 2016 Short List Final
+@Topic: Geometry > Plane Geometry > Triangles > Triangle centers: centroid, incenter, circumcenter, orthocenter, Euler line, nine-point circle
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: The point $M$ lies on the side $AB$ of the circumscribed quadrilateral $ABCD$. The points $I_1, I_2$, and $I_3$ are the incenters of $\triangle MBC$, $\triangle MCD$, and $\triangle MDA$. Show that th...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

@@ -1,0 +1,20 @@
+// MathNet Problem: 0d1o
+@Competition: Selection tests for the Balkan Mathematical Olympiad 2013
+@Topic: Discrete Mathematics > Combinatorics > Enumeration with symmetry
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: The set $G$ is defined by the points $(x, y)$ with integer coordinates, $1 \leq x \leq 5$ and $1 \leq y \leq 5$. Determine the number of five-point sequences $\left(P_{1}, P_{2}, P_{3}, P_{4}, P_{5}\r...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 42

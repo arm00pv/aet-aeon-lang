@@ -1,0 +1,20 @@
+// MathNet Problem: 00ny
+@Competition: AUT_ABooklet_2023
+@Topic: Geometry > Plane Geometry > Miscellaneous > Distance chasing
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Alice and Bob play a game, in which they take turns drawing segments of length $1$ in the Euclidean plane. Alice begins, drawing the first segment, and from then on, each segment must start at the end...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: a) Yes, either player can force the game to end. b) No; neither player has a winning strategy, as both can always make a safe move.

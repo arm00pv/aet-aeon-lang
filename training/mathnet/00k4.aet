@@ -1,0 +1,20 @@
+// MathNet Problem: 00k4
+@Competition: AustriaMO2013
+@Topic: Geometry > Solid Geometry > 3D Shapes
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Let $ABCDEF$ be a regular octahedron with lower vertex $E$, upper vertex $F$, middle slice plane $ABCD$, center $M$ and circumsphere $k$. Furthermore let $X$ be an arbitrary point within side $ABF$. T...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: TBD

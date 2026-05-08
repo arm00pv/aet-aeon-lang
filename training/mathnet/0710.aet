@@ -1,0 +1,21 @@
+// MathNet Problem: 0710
+@Competition: Iberoamerican Mathematical Olympiad
+@Topic: Geometry > Plane Geometry > Geometric Inequalities > Optimization in geometry
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+A convex hexagon is called a unit if it has four diagonals of length $1$, whose endpoints include all the vertices of the hexagon. Show that there is a unit of area $k$ for any $0 < k \leq 1$...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 3*sqrt(3)/4

@@ -1,0 +1,22 @@
+// MathNet Problem: 0855
+@Competition: XXII OLIMPIADE ITALIANA DI MATEMATICA
+@Topic: Geometry > Plane Geometry > Triangles > Triangle centers: centroid, incenter, circumcenter, orthocenter, Euler line, nine-point circle
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+Sia $\Gamma$ una circonferenza e siano $A$ e $B$ due punti distinti di $\Gamma$ non diametralmente opposti. Sia $P$ un punto variabile in $\Gamma$ diverso da $A$ e da $B$ e sia $H$ l'ortocen...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: The locus is the circle Γ′ obtained by reflecting Γ across the line AB (equivalently, translating Γ by the vector CA, where C is diametrically opposite to B), with the two points A′ and B′ (the images of A and B) removed.

@@ -1,0 +1,22 @@
+// MathNet Problem: 00xp
+@Competition: Baltic Way 1993
+@Topic: Discrete Mathematics > Combinatorics > Coloring schemes, extremal arguments
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+A square is divided into 16 equal squares, obtaining the set of 25 different vertices. What is the least number of vertices one must remove from this set, so that no 4 points of the remainin...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 8

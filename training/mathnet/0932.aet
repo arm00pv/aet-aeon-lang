@@ -1,0 +1,22 @@
+// MathNet Problem: 0932
+@Competition: Middle European Mathematical Olympiad
+@Topic: Discrete Mathematics > Combinatorics > Invariants / monovariants
+
+// State space for mathematical reasoning
+State(4096) → reasoning_space
+WaveState(2048) → solution_wave
+
+// Problem: Problem:
+
+There is a lamp on each cell of a $2017 \times 2017$ square board. Each lamp is either on or off. A lamp is called bad if it has an even number of neighbours that are on. What is the smalles...
+
+// Apply reasoning transform
+reasoning_space @ W_initial >> LayerNorm
+
+// Attention over solution candidates
+Attention(query=reasoning_space, memory=solution_wave)
+
+// Entropy gate to collapse to correct solution
+⊕EntropyGate(threshold=0.3)
+
+// Answer: 1
