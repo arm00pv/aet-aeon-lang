@@ -1,0 +1,15 @@
+[2026-05-08T13:28:51.682770] Task classified as 'code_generation' (keyword: 'write')
+[2026-05-08T13:28:51.700614] Selected model: kimi-k2.6:cloud
+[2026-05-08T13:28:51.700675] Route: code_generation → kimi-k2.6:cloud (validation: True)
+[2026-05-08T13:28:51.700707] Task classified as 'complex_reasoning' (keyword: 'research')
+[2026-05-08T13:28:51.716941] Selected model: deepseek-v4-pro:cloud
+[2026-05-08T13:28:51.716997] Route: complex_reasoning → deepseek-v4-pro:cloud (validation: True)
+[2026-05-08T13:28:51.717023] Task classified as 'code_generation' (keyword: 'create')
+[2026-05-08T13:28:51.731943] Selected model: kimi-k2.6:cloud
+[2026-05-08T13:28:51.731994] Route: code_generation → kimi-k2.6:cloud (validation: True)
+[2026-05-08T13:28:51.732023] Task classified as 'complex_reasoning' (keyword: 'analyze')
+[2026-05-08T13:28:51.746814] Selected model: deepseek-v4-pro:cloud
+[2026-05-08T13:28:51.746866] Route: complex_reasoning → deepseek-v4-pro:cloud (validation: True)
+[2026-05-08T13:28:51.746893] Task classified as 'code_generation' (keyword: 'rust')
+[2026-05-08T13:28:51.761706] Selected model: kimi-k2.6:cloud
+[2026-05-08T13:28:51.761758] Route: code_generation → kimi-k2.6:cloud (validation: True)
