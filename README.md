@@ -33,7 +33,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/AETHELOS/aet-aeon-lang.git
+git clone https://github.com/arm00pv/aet-aeon-lang.git
 cd aet-aeon-lang
 
 # Install dependencies
