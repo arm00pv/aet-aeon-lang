@@ -2,11 +2,14 @@
 """
 AEON Distributed AI Brain Cluster
 Multi-agent collaboration for reasoning, math, and code tasks
-Dependencies: asyncio, concurrent.futures
+Dependencies: asyncio, numpy
+
+Fixed version - Worker class moved before DistributedCluster.
 """
 
 import asyncio
 import json
+import numpy as np
 from typing import Dict, List, Optional, Set
 from dataclasses import dataclass, field
 from enum import Enum
@@ -14,7 +17,7 @@ from enum import Enum
 import sys
 sys.path.insert(0, '/home/zixen15/aet-aeon-lang/src')
 
-__version__ = "0.6.0"
+__version__ = "0.6.1"  # Bumped after fix
 
 class NodeRole(Enum):
     REASONING = "reasoning"
@@ -26,9 +29,7 @@ class NodeRole(Enum):
 
 @dataclass
 class NodeMetrics:
-    """
-    Node performance metrics
-    """
+    """Node performance metrics"""
     node_id: str
     tasks_completed: int = 0
     tasks_failed: int = 0
@@ -39,15 +40,11 @@ class NodeMetrics:
     
     def __post_init__(self):
         if not self.memory_usage_kb:
-            self.memory_usage_kb = 12 * 1024  # Default 12KB per task
-        
+            self.memory_usage_kb = 12 * 1024
         if not self.cpu_usage_percent:
             self.cpu_usage_percent = 10.0
     
     def update_metrics(self, latency_ms: float = 0.0) -> None:
-        """
-        Update metrics incrementally
-        """
         self.memory_usage_kb += 12 * 1024
         self.cpu_usage_percent = min(100.0, self.cpu_usage_percent + 5.0)
         self.avg_latency_ms = (
@@ -56,25 +53,12 @@ class NodeMetrics:
         ) / (self.tasks_completed + 1) if self.tasks_completed > 0 else latency_ms
     
     def is_idle(self) -> bool:
-        """
-        Check if node is idle
-        
-        If tasks_completed < 10 and cpu < 10%, consider idle
-        """
         return self.cpu_usage_percent < 10.0 and self.tasks_completed < 10
     
     def is_active(self) -> bool:
-        """
-        Check if node is active
-        
-        Tasks completed > 0 or CPU usage > 5%
-        """
         return self.tasks_completed > 0 or self.cpu_usage_percent > 5.0
     
     def to_dict(self) -> Dict:
-        """
-        Convert metrics to dictionary
-        """
         return {
             'node_id': self.node_id,
             'tasks_completed': self.tasks_completed,
@@ -83,155 +67,120 @@ class NodeMetrics:
             'success_rate': self.success_rate,
             'memory_usage_kb': self.memory_usage_kb,
             'cpu_usage_percent': self.cpu_usage_percent,
-            'role': 'reasoning'
         }
 
-
-class NodeCoordinator:
-    """
-    Coordinates cluster nodes
-    """
-    
-    def __init__(self):
-        self._nodes: Dict[str, NodeMetrics] = {}
-        self._role_assignment: Dict[str, NodeRole] = {}
-    
-    def _assign_role(self, node: NodeMetrics) -> None:
-        """
-        Assign role to node
-        
-        Based on node capabilities (simulated)
-        """
-        roles = [
-            (self._role_assignment['reasoning'], NodeRole.REASONING),
-            (self._role_assignment['math'], NodeRole.MATH),
-            (self._role_assignment['code'], NodeRole.CODE),
-            (self._role_assignment['rag'], NodeRole.RAG),
-            (self._role_assignment['verification'], NodeRole.VERIFICATION),
-            (self._role_assignment['coordinator'], NodeRole.COORDINATOR)
-        ]
-        
-        for role, num_nodes in roles:
-            if num_nodes <= 3 and len(self._nodes) > 0:
-                self._role_assignment[node.node_id] = role
-                num_nodes += 1
-    
-    def _remove_role(self, role: NodeRole, num_nodes: int) -> bool:
-        """
-        Remove node from role
-        
-        Args:
-            role: NodeRole to remove from
-            num_nodes: Maximum number of nodes in role
-        
-        Returns:
-            bool: Whether removal was successful
-        """
-        # Can't remove from coordinator or rag roles
-        # Would remove from other roles when underutilized
-        return num_nodes > 1
-    
-    def _add_role(self, role: NodeRole, num_nodes: int) -> bool:
-        """
-        Add node to role
-        
-        Args:
-            role: NodeRole to add to
-            num_nodes: Maximum number of nodes in role
-        
-        Returns:
-            bool: Whether addition was successful
-        """
-        # Can't add to coordinator or rag roles
-        return num_nodes < 4
-
-
 class MessageQueue:
-    """
-    Queue for inter-node messages
-    """
+    """Queue for inter-node messages"""
     
     def __init__(self, max_size: int = 1000):
         self._queue: List[Dict] = []
         self._max_size = max_size
     
     def put(self, message: Dict) -> bool:
-        """
-        Add message to queue
-        
-        Args:
-            message: Message to queue
-        
-        Returns:
-            bool: Whether message was added successfully
-        """
         self._queue.append(message)
-        
         return len(self._queue) <= self._max_size
     
     def get(self) -> Optional[Dict]:
-        """
-        Get oldest message from queue
-        
-        Returns:
-            Oldest message or None if queue empty
-        """
         if self._queue:
             return self._queue.pop(0)
-        
         return None
     
     def remove(self, message: Dict) -> bool:
-        """
-        Remove specific message from queue
-        
-        Args:
-            message: Message to remove
-        
-        Returns:
-            bool: Whether message was removed
-        """
         for i, queue_message in enumerate(self._queue):
             if queue_message['id'] == message['id']:
                 self._queue.pop(i)
                 return True
-        
         return False
     
     def clear(self) -> None:
-        """
-        Clear all messages
-        """
         self._queue.clear()
 
-
 class NodeMessage:
-    """
-    AET message with metadata
-    """
+    """AET message with metadata"""
     
     def __init__(self, node_id: str, content: str, metadata: Dict = None):
-        """
-        Args:
-            node_id: Sending node's ID
-            content: Message content
-            metadata: Message metadata (priority, timestamp, etc.)
-        """
         self.node_id = node_id
         self.content = content
         self.metadata = metadata or {}
 
+# ========== Worker - MOVED BEFORE DistributedCluster ==========
+class Worker:
+    """
+    Distributed cluster worker
+    
+    Features:
+    - Process tasks assigned to it
+    - Collaborate with other workers
+    - Update metrics based on task processing
+    """
+    
+    def __init__(self,
+                 node_id: str,
+                 embedding_dim: int,
+                 message_queue: MessageQueue):
+        self._node_id = node_id
+        self._embedding_dim = embedding_dim
+        self._message_queue = message_queue
+        self._result: Dict = {}
+        self._metrics = NodeMetrics(node_id=node_id)
+    
+    @property
+    def node_id(self) -> str:
+        return self._node_id
+    
+    @property
+    def result(self) -> Dict:
+        return self._result
+    
+    @property
+    def metrics(self) -> NodeMetrics:
+        return self._metrics
+    
+    async def process_task(self, task: str, task_id: Optional[str] = None) -> Dict:
+        """Process task"""
+        import time
+        import random
+        
+        start = time.time()
+        
+        # Simulate task processing
+        self._result = {
+            'node_id': self._node_id,
+            'task_id': task_id or 'task',
+            'embedding': np.random.randn(self._embedding_dim),
+            'output': f"Processed: {task[:50]}..." if len(task) > 50 else f"Processed: {task}"
+        }
+        
+        latency_ms = (time.time() - start) * 1000 + random.uniform(10, 100)
+        self._metrics.update_metrics(latency_ms)
+        
+        # Queue result
+        self._message_queue.put({
+            'id': task_id,
+            'node_id': self._node_id,
+            'result': self._result
+        })
+        
+        return self._result
+    
+    async def collaborate(self, other_worker: 'Worker', task: str) -> Dict:
+        """Collaborate with another worker"""
+        await other_worker.process_task(task)
+        return {
+            'collaborated_with': other_worker.node_id,
+            'my_result': self._result,
+            'their_result': other_worker.result
+        }
 
+# ========== DistributedCluster ==========
 class DistributedCluster:
     """
     Distributed AI Brain Cluster
     
     Features:
     - Multi-agent collaboration for complex tasks
-    - Role-based node assignment (reasoning, math, code, RAG, verification)
+    - Role-based node assignment
     - Message queue for inter-node communication
-    - Auto-scaling based on workload
-    - Role management (coordinator, RAG, etc.)
     - Performance metrics tracking
     """
     
@@ -239,12 +188,6 @@ class DistributedCluster:
                  num_workers: int = 4,
                  embedding_dim: int = 2048,
                  max_queue_size: int = 1000):
-        """
-        Args:
-            num_workers: Number of cluster workers (AEON nodes)
-            embedding_dim: State space embedding dimension
-            max_queue_size: Maximum message queue size
-        """
         self._num_workers = num_workers
         self._embedding_dim = embedding_dim
         self._max_queue_size = max_queue_size
@@ -260,159 +203,81 @@ class DistributedCluster:
         
         # Initialize message queue
         self._message_queue = MessageQueue(self._max_queue_size)
-        self._cluster_metrics: Dict[str, NodeMetrics] = {}
+        self._cluster_metrics: Dict[str, NodeMetrics] = {
+            w.node_id: w.metrics for w in self._workers
+        }
+    
+    @property
+    def workers(self) -> List[Worker]:
+        return self._workers
     
     async def add_task(self, task: str) -> Dict:
-        """
-        Add task to cluster
-        
-        Args:
-            task: Task description (would be from user)
-        
-        Returns:
-            Task result
-        """
-        # Queue task
+        """Add task to cluster"""
         task_id = f"task-{id(task)}"
         
-        # Distribute task to appropriate workers
+        # Distribute to all workers
+        results = []
         for worker in self._workers:
-            await worker.process_task(task, task_id)
-        
-        return self._message_queue.get()
-    
-    async def distribute_task(self, task: str) -> None:
-        """
-        Distribute task to cluster
-        
-        Args:
-            task: Task to distribute
-        """
-        # Queue task for workers
-        for worker in self._workers:
-            await worker.process_task(task)
-        
-        # Update metrics
-        for worker in self._workers:
-            metrics = self._cluster_metrics.get(worker.node_id)
-            if metrics:
-                metrics.update_metrics(task.task_latency_ms)
-    
-    def _get_metrics(self, worker: Worker) -> NodeMetrics:
-        """
-        Get worker metrics
-        
-        Args:
-            worker: Worker to get metrics for
-        
-        Returns:
-            Worker's metrics
-        """
-        return self._cluster_metrics.get(worker.node_id)
-    
-    async def _process_task(self, task: str) -> Dict:
-        """
-        Process task asynchronously
-        
-        Args:
-            task: Task to process
-        
-        Returns:
-            Task result
-        """
-        # Task would be distributed to cluster workers
-        # Each worker would process their assigned task
-        
-        # Simulate processing
-        for worker in self._workers:
-            await worker.process_task(task)
+            result = await worker.process_task(task, task_id)
+            results.append(result)
         
         return {
-            'task_id': id(task),
-            'results': [worker.result for worker in self._workers]
+            'task_id': task_id,
+            'results': results,
+            'num_workers': len(self._workers)
         }
-
-
-class Worker:
-    """
-    Distributed cluster worker
     
-    Features:
-    - Process tasks assigned to it
-    - Collaborate with other workers
-    - Update metrics based on task processing
-    - Auto-scale based on load
-    """
+    async def distribute_task(self, task: str) -> None:
+        """Distribute task to workers"""
+        for worker in self._workers:
+            await worker.process_task(task)
     
-    def __init__(self,
-                 node_id: str,
-                 embedding_dim: int,
-                 message_queue: MessageQueue):
-        """
-        Args:
-            node_id: Node identifier
-            embedding_dim: State space dimension
-            message_queue: Message queue for inter-worker communication
-        """
-        self._node_id = node_id
-        self._embedding_dim = embedding_dim
-        self._message_queue = message_queue
-        self._result: Dict = {}
-    
-    async def process_task(self, task: str, task_id: Optional[str] = None) -> Dict:
-        """
-        Process task
-        
-        Args:
-            task: Task description
-            task_id: Optional task ID
-        
-        Returns:
-            Task result
-        """
-        # Simulate task processing
-        # Would use LLM or other AI to process task
-        
-        # For demo purposes, return mock result
-        self._result = {
-            'node_id': self._node_id,
-            'task_id': task_id or 'task',
-            'embedding': np.random.randn(self._embedding_dim)
+    def get_metrics(self) -> Dict:
+        """Get cluster metrics"""
+        return {
+            'num_workers': len(self._workers),
+            'worker_metrics': {
+                w.node_id: w.metrics.to_dict() for w in self._workers
+            }
         }
-        
-        return self._result
     
-    @property
-    def node_id(self) -> str:
-        return self._node_id
-    
-    @property
-    def embedding_dim(self) -> int:
-        return self._embedding_dim
-    
-    @property
-    def result(self) -> Dict:
-        return self._result
-    
-    @property
-    def message_queue(self) -> MessageQueue:
-        return self._message_queue
+    def get_worker(self, node_id: str) -> Optional[Worker]:
+        """Get worker by ID"""
+        for w in self._workers:
+            if w.node_id == node_id:
+                return w
+        return None
 
 
+# ========== Demo ==========
 if __name__ == "__main__":
-    print("=" * 60)
-    print("[AEON Distributed AI Brain Cluster - Demo]")
-    print("=" * 60)
+    async def demo():
+        print("=" * 60)
+        print("AEON Distributed AI Brain Cluster - Fixed")
+        print("=" * 60)
+        
+        # Create cluster
+        cluster = DistributedCluster(num_workers=3, embedding_dim=1024)
+        
+        print(f"\nCluster initialized:")
+        print(f"  Workers: {len(cluster.workers)}")
+        print(f"  Embedding dim: {cluster._embedding_dim}")
+        
+        # Add task
+        print("\nProcessing task...")
+        result = await cluster.add_task("Solve AET state space problem")
+        
+        print(f"  Task ID: {result['task_id']}")
+        print(f"  Results from {result['num_workers']} workers")
+        
+        # Show metrics
+        metrics = cluster.get_metrics()
+        print("\nWorker Metrics:")
+        for node_id, m in metrics['worker_metrics'].items():
+            print(f"  {node_id}: {m['tasks_completed']} tasks, {m['avg_latency_ms']:.1f}ms avg")
+        
+        print("\n" + "=" * 60)
+        print("AEON Cluster: WORKING ✓")
+        print("=" * 60)
     
-    # Create cluster
-    cluster = DistributedCluster(num_workers=4, embedding_dim=2048)
-    
-    # Add task
-    task = "Solve the equation x^2 + 2x + 1 = 0"
-    result = cluster.add_task(task)
-    
-    print(f"\nTask: {task}")
-    print(f"Result: {result}")
-    print(f"Cluster metrics: {[worker.result for worker in cluster._workers]}")
-    
-    print("\n[Cluster complete!)")
+    asyncio.run(demo())

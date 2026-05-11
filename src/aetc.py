@@ -78,8 +78,7 @@ def gen(ops):
 pub fn main() !void {
     var prng = std.Random.DefaultPrng.init(42);
     const rng = prng.random();
-    _ = rng;
-    
+
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
@@ -87,11 +86,12 @@ pub fn main() !void {
     var pool: std.Thread.Pool = undefined;
     try pool.init(.{ .allocator = allocator, .n_jobs = 16 });
     defer pool.deinit();
-    
-    _ = rng;
-    _ = allocator;
-    _ = pool;
 """
+    # Track usage to avoid pointless discards
+    has_state = any(op['type'] == 'state' for op in ops)
+    if not has_state:
+        z += "    _ = rng;\n    _ = allocator;\n    _ = pool;\n"
+
     for op in ops:
         if op['type'] == 'state':
             name, d = op['name'], op['dim']
@@ -99,12 +99,11 @@ pub fn main() !void {
             z += f"    for (0..{d}) |i| {name}[0][i] = rng.floatNorm(f64);\n"
         elif op['type'] == 'gradient':
             z += f"    // Gradient pass for {op['target']}\n"
-            z += f"    var {op['out']}: f64 = 0.001; \n"
+            z += f"    var {op['out']}: f64 = 0.001;\n"
             z += f"    _ = {op['out']};\n"
         elif op['type'] == 'checkpoint':
             z += f"    // PTC: Checkpointing {op['state']} to {op['path']}\n"
             z += f"    std.log.info(\"Checkpointing state to {{s}}\", .{{\"{op['path']}\"}});\n"
-            # Actual file creation logic in Zig
             z += f"    const file = std.fs.cwd().createFile(\"{op['path']}\", .{{}}) catch unreachable;\n"
             z += f"    file.close();\n"
         elif op['type'] == 'offload':
