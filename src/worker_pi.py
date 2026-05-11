@@ -3,7 +3,7 @@
 AET_AEON_WORKER_PI.py - Pi-based AI Worker
 ==========================================
 Executes tasks using pi with ollama cloud models as the brain.
-Uses kimi-k2.6:cloud or other :cloud models for inference.
+Uses qwen3.5:9b:cloud for inference.
 """
 
 import os
@@ -12,6 +12,11 @@ import json
 import subprocess
 import time
 from datetime import datetime
+from pathlib import Path
+
+# Import our hardware guarding
+sys.path.insert(0, str(Path(__file__).parent))
+from aetc import check_hardware_safety
 
 WORKER_NAME = "AETHEL_PI"
 LOG_DIR = "/home/zixen15/aet_aeon/logs"
@@ -20,8 +25,8 @@ RESULTS_DIR = "/home/zixen15/aet_aeon/results"
 os.makedirs(LOG_DIR, exist_ok=True)
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
-# Default cloud model (uses ollama pro cloud inference)
-DEFAULT_MODEL = "kimi-k2.6:cloud"
+# Corrected cloud model name
+DEFAULT_MODEL = "qwen3.5:cloud"
 
 def log(msg):
     ts = datetime.now().isoformat()
@@ -30,11 +35,18 @@ def log(msg):
         f.write(f"[{ts}] {msg}\n")
 
 def execute_ollama_task(prompt, task_id, model=None):
-    """Execute task via ollama with :cloud model"""
+    """Execute task via ollama with Hardware Guarding"""
     model = model or DEFAULT_MODEL
     log(f"Executing task {task_id} with {model}...")
     
-    # Use ollama run with cloud model
+    # HG: Check hardware safety before launch
+    is_safe = check_hardware_safety()
+    env = os.environ.copy()
+    if not is_safe:
+        log("HG: GPU instability detected. Forcing CPU-only execution.")
+        env["OLLAMA_NUM_GPU"] = "0"
+    
+    # Use ollama run
     cmd = ["ollama", "run", model, prompt]
     
     try:
@@ -42,7 +54,8 @@ def execute_ollama_task(prompt, task_id, model=None):
             cmd,
             capture_output=True,
             text=True,
-            timeout=300  # 5 min timeout
+            timeout=600,  # Increased to 10 min for CPU mode
+            env=env
         )
         
         output = result.stdout + result.stderr

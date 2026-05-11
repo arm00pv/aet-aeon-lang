@@ -42,7 +42,7 @@ class AETReasoner:
     """
     
     def __init__(self, node_id: str = "reasoner_001"):
-        self.node = AethelOSNode(node_id, ["kimi-k2.6:cloud", "gemini"])
+        self.node = AethelOSNode(node_id, ["qwen3.5:9b:cloud", "gemini"])
         self.reasoning_history = []
     
     def classify_problem(self, problem_text: str) -> Dict:

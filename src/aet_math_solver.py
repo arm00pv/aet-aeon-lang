@@ -34,7 +34,7 @@ class AETMathSolver:
     """Solve math problems using AET primitives"""
     
     def __init__(self):
-        self.node = AethelOSNode("math_solver", ["kimi-k2.6:cloud"])
+        self.node = AethelOSNode("math_solver", ["qwen3.5:9b:cloud"])
         self.problems_loaded = 0
     
     def load_problems(self, limit: int = 1000):

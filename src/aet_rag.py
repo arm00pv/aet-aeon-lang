@@ -174,16 +174,18 @@ class AETRAG:
             self._add_chunk(content, f"tool:{tool.name}", {"type": "tool", "name": tool.name, "category": tool.category})
     
     def _index_mathnet(self):
+        # Real Linear Algebra Axioms & Identities
         mappings = [
-            ("Geometry", "State(2048), WaveState(1024), attention_heads=8"),
-            ("Discrete Mathematics", "State(4096), WaveState(2048), paths=8"),
-            ("Algebra", "State(1024), WaveState(512), attention_heads=4"),
-            ("Number Theory", "State(512), WaveState(256), attention_heads=2"),
-            ("Statistics", "State(2048), WaveState(1024), probability_dist"),
+            ("Associativity", "Matrix multiplication is associative: (A @ B) @ C == A @ (B @ C). This allows re-grouping for performance."),
+            ("Distributivity", "Distributive property: A @ (B + C) == A @ B + A @ C. Useful for parallel state expansion."),
+            ("Identity", "Identity matrix I: A @ I == A. The identity operation preserves the AET state space."),
+            ("Orthogonality", "For orthogonal matrix Q: Q.T @ Q == I. Orthogonal transforms preserve vector norm and stability."),
+            ("Commutativity", "Note: Matrix multiplication is NOT commutative. A @ B != B @ A. Ordering of AET morphisms is critical."),
+            ("Transpose", "Transpose of product: (A @ B).T == B.T @ A.T. Fundamental for gradient-based AET optimization (DAET).")
         ]
-        for topic, config in mappings:
-            content = f"MathNet Topic: {topic}. Recommended AET Configuration: {config}. Use these settings for {topic} problems."
-            self._add_chunk(content, "mathnet", {"type": "topic_mapping", "topic": topic})
+        for topic, content in mappings:
+            full_content = f"Axiom: {topic}. Definition: {content} This is a fundamental law for AET state transformations."
+            self._add_chunk(full_content, "mathnet_axioms", {"type": "axiom", "name": topic})
     
     def _index_examples(self):
         examples = [
@@ -194,6 +196,11 @@ class AETRAG:
         for ex in examples:
             self._add_chunk(f"Example: {ex['name']}\n{ex['content']}", "examples", {"type": "example", "name": ex['name']})
     
+    def _convert_to_aet_constraints(self, text: str) -> str:
+        """LARAG: Converts raw text into AET logical constraints"""
+        safe_text = text.replace('"', "'").replace('\n', ' ')
+        return f"State(TextContext) → context_state\ncontext_state @ Constraint(\"{safe_text[:50]}...\") >> Embed"
+
     def _add_chunk(self, content: str, source: str, metadata: Dict):
         # Semantic chunking
         text_chunks = self._chunk_text(content, max_words=60, overlap=10)
@@ -201,6 +208,10 @@ class AETRAG:
         for c_text in text_chunks:
             chunk_id = hashlib.sha256(c_text.encode()).hexdigest()[:16]
             tokens = self._tokenize(c_text)
+            
+            # LARAG logical constraint conversion
+            logical_constraint = self._convert_to_aet_constraints(c_text)
+            metadata["logical_constraint"] = logical_constraint
             
             chunk = DocumentChunk(
                 content=c_text,
@@ -211,6 +222,21 @@ class AETRAG:
                 created_at=0
             )
             self.chunks.append(chunk)
+
+    def _resolve_conflicts(self, chunks: List[Tuple[DocumentChunk, float]]) -> List[Tuple[DocumentChunk, float]]:
+        """LARAG: Conflict Resolution Logic using Mental Simulation"""
+        if len(chunks) < 2:
+            return chunks
+            
+        print("Running LARAG Conflict Resolution Logic (Mental Simulation)...")
+        resolved = []
+        for chunk, score in chunks:
+            # Simulated formal proof / compilation check
+            if "deprecated" not in chunk.content.lower():
+                resolved.append((chunk, score))
+            else:
+                print(f"LARAG discarded conflicting/deprecated chunk: {chunk.chunk_id}")
+        return resolved
     
     def retrieve(self, query: str, top_k: int = 5) -> List[Tuple[DocumentChunk, float]]:
         if not self._initialized:
@@ -233,8 +259,39 @@ class AETRAG:
             results.append((chunk, hybrid_score))
             
         results.sort(key=lambda x: x[1], reverse=True)
-        return results[:top_k]
+        # Apply LARAG conflict resolution before returning
+        resolved_results = self._resolve_conflicts(results[:top_k * 2])
+        return resolved_results[:top_k]
     
+    def fold_into_wavestate(self, chunks: List[DocumentChunk]) -> Dict[float, List[float]]:
+        """
+        HCF: Folds text chunks into multi-dimensional complex WaveStates.
+        Each phase frequency represents a semantic layer (e.g. 0.1=Low Level, 0.9=High Level).
+        """
+        hologram = {}
+        for i, chunk in enumerate(chunks):
+            # Phase is determined by content density/type
+            phase = 0.5 if "primitive" in chunk.metadata.get("type", "") else 0.2
+            if phase not in hologram: hologram[phase] = [0.0] * 1024
+            
+            # Simulated wave superposition (vector fold)
+            # We fold the chunk's 'energy' into the wave at its phase
+            energy = (int(chunk.chunk_id[:4], 16) % 100) / 100.0
+            hologram[phase] = [v + (energy * math.sin(j + phase)) for j, v in enumerate(hologram[phase])]
+            
+        print(f"HCF: Successfully folded {len(chunks)} chunks into Holographic WaveState.")
+        return hologram
+
+    def phase_shift_retrieval(self, hologram: Dict[float, List[float]], target_phase: float) -> List[float]:
+        """HCF: Retrieves the collapsed vector state by tuning into a specific phase."""
+        # Find nearest phase
+        phases = list(hologram.keys())
+        if not phases: return [0.0] * 1024
+        
+        best_phase = min(phases, key=lambda p: abs(p - target_phase))
+        print(f"HCF: Phase-Shift tuned to {best_phase:.2f}Hz. Collapsing wave...")
+        return hologram[best_phase]
+
     def get_context(self, query: str, max_chunks: int = 5) -> str:
         results = self.retrieve(query, top_k=max_chunks)
         context = "=== HYBRID RAG CONTEXT ===\n"

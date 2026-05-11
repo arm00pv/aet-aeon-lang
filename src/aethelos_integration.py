@@ -74,7 +74,7 @@ def demo():
     print()
     
     # Create nodes
-    archon = AethelOSNode("archon", ["kimi-k2.6:cloud", "deepseek-v4-pro:cloud"])
+    archon = AethelOSNode("archon", ["qwen3.5:9b:cloud"])
     agent = AethelOSNode("agent", ["gemini"])
     
     # 1. Archon creates an AET task

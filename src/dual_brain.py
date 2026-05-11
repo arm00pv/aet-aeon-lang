@@ -18,7 +18,7 @@ from pathlib import Path
 
 # Model assignments
 MODELS = {
-    "code_gen": "kimi-k2.6:cloud",
+    "code_gen": "qwen3.5:9b",
     "research": "gemini",
     "verify": "nemotron-3-super:cloud",
 }
@@ -26,7 +26,7 @@ MODELS = {
 class OllamaCloud:
     """Ollama Cloud worker - uses local ollama with cloud models"""
     
-    def __init__(self, model="kimi-k2.6:cloud"):
+    def __init__(self, model="qwen3.5:9b"):
         self.model = model
         self.name = "OllamaCloud"
     
@@ -94,7 +94,7 @@ class DualBrain:
     """
     
     def __init__(self):
-        self.ollama = OllamaCloud("kimi-k2.6:cloud")
+        self.ollama = OllamaCloud("qwen3.5:9b")
         self.gemini = GeminiWorker()
         self.history = []
     

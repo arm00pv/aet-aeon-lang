@@ -243,7 +243,7 @@ Format: `AEON:task:priority:payload:::hints:validation`
 Used for AI-to-AI communication with model hints and validation.
 
 ### Fallback System
-If cloud models fail (429, timeout), automatically uses `phi4:latest` (local).
+If cloud models fail (429, timeout), automatically uses `qwen3.5:4b` (local).
 No external dependencies when using local fallback.
 
 ## Key Files
