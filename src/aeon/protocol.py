@@ -95,3 +95,22 @@ class AEONNode:
         reconstructed = [b + d for b, d in zip(base_state, deltas)]
         print(f"HCS: Successfully decoded delta payload back to {len(reconstructed)} float state.")
         return reconstructed
+
+# ========== TEMPLATES ==========
+TEMPLATES = {
+    "reasoning": "State(4096) → reasoning_space @ W_chain >> LayerNorm >> ReLU >> Attention",
+    "math": "State(2048) → problem @ W_solve >> EntropyGate(threshold=0.5) → solution",
+    "code": "State(1024) → code @ W_parse >> Composition >> Verify",
+    "rag": "State(2048) → query @ W_embed >> Attention(memory=context) → retrieval",
+    "verification": "State(512) → assertion @ W_verify >> TruthValue",
+}
+
+def create_message(task_id: str, priority: str, aet_code: str, models: List[str]) -> str:
+    """Create an AEON message string"""
+    node = AEONNode("sender", models)
+    return node.send_task(task_id, priority, aet_code, models)
+
+def parse_message(msg: str) -> Optional[AEONMessage]:
+    """Parse an AEON message string"""
+    node = AEONNode("receiver", [])
+    return node.receive_task(msg)
